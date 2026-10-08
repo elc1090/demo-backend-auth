@@ -81,6 +81,8 @@ docker compose down -v
 
 ### 05: SQL direto
 
+Sem usar uma camada de Object-Relational Mapping (ORM), o SQL fica exposto no código:
+
 ```js
 const { rows } = await pool.query(
   "SELECT id, title FROM tasks ORDER BY id"
@@ -89,17 +91,19 @@ const { rows } = await pool.query(
 
 ### 06: Prisma
 
+Usando uma ferramenta de ORM como Prisma, o código não lida diretamente com SQL:
+
 ```js
 const tasks = await prisma.task.findMany({
   orderBy: { id: "asc" }
 });
 ```
 
-O banco continua PostgreSQL; muda a camada de acesso.
+O banco continua PostgreSQL, só muda a camada de acesso, mais abstratída. Podemos substituir o banco por SQLite, MySQL, etc., sem alterar este código.
 
 ### 07: MongoDB
 
-O backend usa o driver oficial diretamente, sem ODM, para que a mudança principal seja o modelo/banco.
+O backend usa o driver oficial diretamente, sem ODM (Object-Documet Mapping), para que a mudança principal seja o modelo/banco.
 
 ### 04: sessão
 
@@ -126,12 +130,13 @@ Há um `.devcontainer/devcontainer.json` com Docker-in-Docker e encaminhamento d
 
 ## Observações
 
-- Os exemplos 01–04 são pouco realistas, pois : por exemplo, usam contas no próprio código. O objetivo é dar visibilidade a conceitos, não servir de modelo.
+- Os exemplos são propositalmente simples e não podem ser usados em produção sem alguns cuidados. 
+- As credenciais de demonstração estão expostas na interface. É uma facilidade para testes, mas obviamente não se faz isso em uma aplicação real.
+- O exemplo de sessão (04) usa store em memória. Em uma aplicação real, a sessão seria persistida em um banco de dados.
+- O exemplo com JWT (08) não tem refresh token. Em uma aplicação real, isso é altamente recomendável.
+- O Prisma usa `db push` para criar o banco automaticamente. Em produção, se usa `db migrate`.
+- O exemplo com Supabase exige configuração externa.
 
-- O exemplo Supabase usa um projeto Supabase real e portanto depende de acesso à internet.
-
-
-Os exemplos privilegiam visibilidade conceitual, não produção. Credenciais e secrets de demonstração são intencionais; o exemplo de sessão usa store em memória; o JWT não tem refresh token; o Prisma usa `db push`; e o Supabase exige configuração externa.
 
 A pergunta central em todos os exemplos é:
 
