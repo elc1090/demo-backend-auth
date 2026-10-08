@@ -9,3 +9,6 @@ const tasks = await prisma.task.findMany({
 ```
 
 Compare com o SQL explícito do exemplo 05.
+
+
+Veja também: https://www.prisma.io/docs/orm/v6/prisma-schema/data-model/models#models-in-prisma-client
