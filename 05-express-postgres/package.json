@@ -1,0 +1,7 @@
+{
+  "name": "example-05-express-postgres",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^5.1.0", "pg": "^8.16.3" }
+}

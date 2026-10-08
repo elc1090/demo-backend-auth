@@ -1,0 +1,91 @@
+services:
+  express:
+    build: ./01-express-in-memory
+    ports: ["8080:8080"]
+
+  fastapi:
+    build: ./02-fastapi-in-memory
+    ports: ["8080:8080"]
+
+  spring:
+    build: ./03-spring-in-memory
+    ports: ["8080:8080"]
+
+  session-auth:
+    build: ./04-express-session-auth
+    environment:
+      SESSION_SECRET: classroom-demo-secret
+    ports: ["8080:8080"]
+
+  postgres-05:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: tasks
+    volumes: ["pg05-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasks -d tasks"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  express-postgres:
+    build: ./05-express-postgres
+    environment:
+      DATABASE_URL: postgresql://tasks:tasks@postgres-05:5432/tasks
+    depends_on:
+      postgres-05:
+        condition: service_healthy
+    ports: ["8080:8080"]
+
+  postgres-06:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: tasks
+    volumes: ["pg06-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasks -d tasks"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  express-prisma:
+    build: ./06-express-prisma
+    environment:
+      DATABASE_URL: postgresql://tasks:tasks@postgres-06:5432/tasks
+    depends_on:
+      postgres-06:
+        condition: service_healthy
+    ports: ["8080:8080"]
+
+  mongo-07:
+    image: mongo:8
+    volumes: ["mongo07-data:/data/db"]
+
+  express-mongodb:
+    build: ./07-express-mongodb
+    environment:
+      MONGODB_URL: mongodb://mongo-07:27017
+    depends_on: [mongo-07]
+    ports: ["8080:8080"]
+
+  token-auth:
+    build: ./08-express-token-auth
+    environment:
+      JWT_SECRET: classroom-demo-jwt-secret
+    ports: ["8080:8080"]
+
+  supabase-auth:
+    build: ./09-supabase-auth
+    env_file:
+      - path: ./.env
+        required: false
+    ports: ["8080:80"]
+
+volumes:
+  pg05-data:
+  pg06-data:
+  mongo07-data:
